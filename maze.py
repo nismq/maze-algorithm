@@ -1,3 +1,4 @@
+import utils
 from collections import deque
 
 class Pos:
@@ -13,20 +14,13 @@ class Pos:
         return "({},{})".format(self.x, self.y)
 
 def main():
-    maze = read_maze_from_file()
+    maze: list = utils.read_maze_from_input()
     goal = solve_maze(maze)
     if goal:
         print('solved')
     find_path(maze, goal)
     print_maze(maze)
 
-def read_maze_from_file():
-    with open("maze-task-first.txt", "r") as input_file:
-        maze: list = []
-        for line in input_file:
-            maze.append(list(line.rstrip()))
-    print_maze(maze)
-    return maze
 
 def print_maze(maze):
     for row in maze:
