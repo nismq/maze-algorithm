@@ -4,56 +4,50 @@ from collections import deque
 maze: list = utils.read_maze_from_input()
 
 class Cell:
-    def __init__(self, col, row, parent=None):
+    def __init__(self, col, row, steps_from_start=None, parent_cell=None):
         self.col = col
         self.row = row
-        self.parent = parent
+        self.steps_from_start = steps_from_start
+        self.parent_cell = parent_cell
 
     def print(self):
         print("({},{})".format(self.col, self.row))
 
     def to_string(self):
         return "({},{})".format(self.col, self.row)
+    
 
-def main():
-    goal = solve_maze()
-    if goal:
-        print('solved')
-    find_path(goal)
-    print_maze()
-
-def print_maze():
-    for row in maze:
-        print("".join(row))
-
-def solve_maze():
+def solve_maze(max_steps: int):
     start_position = find_start()
+    start_position.steps_from_start = 0
     queue = deque()
     queue.append(start_position)
     visited = [start_position.to_string()]
 
-    up = Cell(0,-1), down = Cell(0,1), left = Cell(-1,0), right = Cell(1,0)
+    up = (0,-1)
+    down = (0,1)
+    left = (-1,0)
+    right = (1,0)
 
     max_iterations = 400
     iterations = 0
     while queue and iterations < max_iterations:
         iterations += 1
-        print('Iterations {}'.format(iterations))
-        print('First in queue:', queue[0].to_string())
 
         for move in [up, down, left, right]:
-            next_move = Cell(queue[0].col + move.col, queue[0].row + move.row)
-            if is_valid_move(next_move) and next_move.to_string() not in visited:
-                print('valid')
-                next_move.parent = queue[0]
+            next_move = Cell(queue[0].col + move[0], queue[0].row + move[1])
+            if is_valid_move(next_move, visited):
+                next_move.parent_cell = queue[0]
+                next_move.steps_from_start = queue[0].steps_from_start + 1
+                if next_move.steps_from_start > max_steps:
+                    return None
                 queue.append(next_move)
                 visited.append(next_move.to_string())
                 if maze[next_move.row][next_move.col] == 'E':
                     return next_move
-        print('-----')
         queue.popleft()
-    print(visited)
     return None
+
 
 def find_start():
     for y, row in enumerate(maze):
@@ -62,28 +56,39 @@ def find_start():
                 return Cell(col=x,row=y)
     return None
 
-def is_valid_move(pos: Cell):
-    print('-----')
+
+def is_valid_move(cell: Cell, visited: list):
     try:
-        pos.print()
-        print(maze[pos.row][pos.col])
-        if maze[pos.row][pos.col] != '#':
+        if maze[cell.row][cell.col] != '#' and cell.to_string() not in visited:
             return True
     except:
-        print('error')
         return False
-    print('false')
     return False
 
-def find_path(goal_pos: Cell):
-    path = []
-    pos = goal_pos
 
-    while pos.parent != None:
-        path.append(pos.to_string())
-        maze[pos.row][pos.col] = '+'
-        pos = pos.parent
-    print(path)
+def mark_path(exit_cell: Cell):
+    path = []
+    current_cell = exit_cell
+    while current_cell.parent_cell != None:
+        path.append(current_cell.to_string())
+        maze[current_cell.row][current_cell.col] = '+'
+        current_cell = current_cell.parent_cell
+
+
+def main():
+    for max_steps in [20, 150, 200]:
+        exit_cell = solve_maze(max_steps)
+        print('Trying to solve maze with maximum steps of {} ...'.format(max_steps), end=' ')
+        if exit_cell:
+            print('Solution found with {} steps.'.format(exit_cell.steps_from_start))
+            print(exit_cell.steps_from_start)
+            mark_path(exit_cell)
+            break
+        else:
+            print('Solution not found.')
+    
+    utils.print_maze(maze)
+
 
 if __name__ == '__main__':
     main()

@@ -23,3 +23,7 @@ def read_maze_from_input():
         for line in f:
             maze.append(list(line.rstrip()))
     return maze
+
+def print_maze(maze):
+    for row in maze:
+        print("".join(row))
