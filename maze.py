@@ -22,7 +22,7 @@ def solve_maze(max_steps: int) -> (Cell | None):
     except Exception:
         print(f"\nError: Did not find start")
         sys.exit(1)
-        
+
     queue = deque()
     queue.append(start_position)
     visited = [start_position.to_string()]
@@ -45,7 +45,7 @@ def solve_maze(max_steps: int) -> (Cell | None):
                 queue.append(adjacent_cell)
                 visited.append(adjacent_cell.to_string())
         queue.popleft()
-    return None
+    raise Exception('Exit not found')
 
 
 def find_start():
@@ -53,7 +53,7 @@ def find_start():
         for x, cell in enumerate(row):
             if cell == '^':
                 return Cell(col=x, row=y, steps_from_start=0)
-    raise Exception()
+    raise Exception('Start not found')
 
 
 def is_valid_move(cell: Cell, visited: list, max_steps: int) -> bool:
@@ -90,19 +90,19 @@ def mark_path(exit_cell: Cell):
 def main():
     global maze
     maze = utils.read_maze_from_input()
-
+        
     for max_steps in [20, 150, 200]:
         print(f'Trying to solve maze with maximum steps of {max_steps} ...',
               end=' ')
-        exit_cell = solve_maze(max_steps)
-        if exit_cell:
-            print(f'Solution found with {exit_cell.steps_from_start} steps.')
+        try:
+            exit_cell = solve_maze(max_steps)
+            print(f'Exit found with {exit_cell.steps_from_start} steps.')
             mark_path(exit_cell)
             utils.write_output_file(maze)
             utils.print_maze(maze)
             break
-        else:
-            print('Solution not found.')
+        except Exception as e:
+            print(e)
             utils.write_output_file(None)
 
 
