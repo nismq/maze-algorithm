@@ -30,11 +30,13 @@ def print_maze(maze):
         print("".join(row))
 
 
-def write_output_file(maze: list):
+def write_output_file(maze: list, exit_not_found: bool = False):
     with open("output.txt", "w") as outfile:
         if maze:
             for row in maze:
                 row_joined = "".join(row)
                 outfile.write(f"{row_joined}\n")
+        elif exit_not_found:
+            outfile.write("Exit not found")
         else:
-            outfile.write("")
+            outfile.write("Something went wrong. Find more info from the terminal.")

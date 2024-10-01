@@ -113,7 +113,7 @@ def main():
             break
         except Exception as e:
             print(e)
-            utils.write_output_file(None)
+            utils.write_output_file(None, exit_not_found=True)
 
 
 if __name__ == '__main__':
