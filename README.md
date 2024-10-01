@@ -34,7 +34,7 @@ python maze.py -i example-maze.txt
 
 
 ### Output
-If a solution is found, the script outputs a visual representation of the maze to the command line. The shortest path will be marked with plus (`+`) characters.
+If a solution is found, the script outputs a visual representation of the maze to the command line and to output.txt file. The shortest path will be marked with plus (`+`) characters.
 
 Example output:
 ```

@@ -11,13 +11,13 @@ class Cell:
         self.parent_cell = parent_cell
 
     def print(self):
-        print("({},{})".format(self.col, self.row))
+        print(f"({self.col},{self.row})")
 
     def to_string(self):
-        return "({},{})".format(self.col, self.row)
-    
+        return f"({self.col},{self.row})"
+        
 
-def solve_maze(max_steps: int):
+def solve_maze(max_steps: int) -> (Cell | None):
     start_position = find_start()
     start_position.steps_from_start = 0
     queue = deque()
@@ -68,7 +68,7 @@ def is_valid_move(cell: Cell, visited: list):
 
 def mark_path(exit_cell: Cell):
     path = []
-    current_cell = exit_cell
+    current_cell = exit_cell.parent_cell
     while current_cell.parent_cell != None:
         path.append(current_cell.to_string())
         maze[current_cell.row][current_cell.col] = '+'
@@ -77,17 +77,17 @@ def mark_path(exit_cell: Cell):
 
 def main():
     for max_steps in [20, 150, 200]:
+        print(f'Trying to solve maze with maximum steps of {max_steps} ...', end=' ')
         exit_cell = solve_maze(max_steps)
-        print('Trying to solve maze with maximum steps of {} ...'.format(max_steps), end=' ')
         if exit_cell:
-            print('Solution found with {} steps.'.format(exit_cell.steps_from_start))
-            print(exit_cell.steps_from_start)
+            print(f'Solution found with {exit_cell.steps_from_start} steps.')
             mark_path(exit_cell)
+            utils.write_output_file(maze)
+            utils.print_maze(maze)
             break
         else:
             print('Solution not found.')
-    
-    utils.print_maze(maze)
+            utils.write_output_file(None)
 
 
 if __name__ == '__main__':
