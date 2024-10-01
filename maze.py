@@ -1,10 +1,9 @@
 import utils
 from collections import deque
-
-maze: list = utils.read_maze_from_input()
+import sys
 
 class Cell:
-    def __init__(self, col, row, steps_from_start=None, parent_cell=None):
+    def __init__(self, col, row, steps_from_start, parent_cell=None):
         self.col = col
         self.row = row
         self.steps_from_start = steps_from_start
@@ -18,8 +17,12 @@ class Cell:
         
 
 def solve_maze(max_steps: int) -> (Cell | None):
-    start_position = find_start()
-    start_position.steps_from_start = 0
+    try:
+        start_position = find_start()
+    except Exception:
+        print(f"\nError: Did not find start")
+        sys.exit(1)
+        
     queue = deque()
     queue.append(start_position)
     visited = [start_position.to_string()]
@@ -29,22 +32,18 @@ def solve_maze(max_steps: int) -> (Cell | None):
     left = (-1,0)
     right = (1,0)
 
-    max_iterations = 400
-    iterations = 0
-    while queue and iterations < max_iterations:
-        iterations += 1
-
-        for move in [up, down, left, right]:
-            next_move = Cell(queue[0].col + move[0], queue[0].row + move[1])
-            if is_valid_move(next_move, visited):
-                next_move.parent_cell = queue[0]
-                next_move.steps_from_start = queue[0].steps_from_start + 1
-                if next_move.steps_from_start > max_steps:
-                    return None
-                queue.append(next_move)
-                visited.append(next_move.to_string())
-                if maze[next_move.row][next_move.col] == 'E':
-                    return next_move
+    while queue:
+        first_in_queue = queue[0]
+        for direction in [up, down, left, right]:
+            adjacent_cell = Cell(first_in_queue.col + direction[0], 
+                                 first_in_queue.row + direction[1], 
+                                 first_in_queue.steps_from_start + 1, 
+                                 first_in_queue)
+            if is_valid_move(adjacent_cell, visited, max_steps):
+                if is_exit(adjacent_cell): 
+                    return adjacent_cell
+                queue.append(adjacent_cell)
+                visited.append(adjacent_cell.to_string())
         queue.popleft()
     return None
 
@@ -53,31 +52,48 @@ def find_start():
     for y, row in enumerate(maze):
         for x, cell in enumerate(row):
             if cell == '^':
-                return Cell(col=x,row=y)
-    return None
+                return Cell(col=x, row=y, steps_from_start=0)
+    raise Exception()
 
 
-def is_valid_move(cell: Cell, visited: list):
+def is_valid_move(cell: Cell, visited: list, max_steps: int) -> bool:
+    # A move is valid when it:
+    # - is within the maze boundaries, 
+    # - is not a wall
+    # - has not been visited already
+    # - is not too far from the start
     try:
-        if maze[cell.row][cell.col] != '#' and cell.to_string() not in visited:
+        if (maze[cell.row][cell.col] != '#' and 
+            cell.to_string() not in visited and 
+            cell.steps_from_start <= max_steps):
             return True
+        else:
+            return False
     except:
         return False
-    return False
+
+
+def is_exit(cell: Cell) -> bool:
+    if maze[cell.row][cell.col] == 'E':
+        return True
+    else:
+        return False
 
 
 def mark_path(exit_cell: Cell):
-    path = []
     current_cell = exit_cell.parent_cell
     while current_cell.parent_cell != None:
-        path.append(current_cell.to_string())
         maze[current_cell.row][current_cell.col] = '+'
         current_cell = current_cell.parent_cell
 
 
 def main():
+    global maze
+    maze = utils.read_maze_from_input()
+
     for max_steps in [20, 150, 200]:
-        print(f'Trying to solve maze with maximum steps of {max_steps} ...', end=' ')
+        print(f'Trying to solve maze with maximum steps of {max_steps} ...',
+              end=' ')
         exit_cell = solve_maze(max_steps)
         if exit_cell:
             print(f'Solution found with {exit_cell.steps_from_start} steps.')
