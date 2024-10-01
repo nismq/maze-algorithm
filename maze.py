@@ -16,8 +16,7 @@ class Cell:
         return f"(row:{self.row}, col:{self.col})"
         
 
-def solve_maze(max_steps: int) -> (Cell | None):
-    start_position = find_start()        
+def solve_maze(start_position: Cell, max_steps: int) -> (Cell | None):
     queue = deque()
     queue.append(start_position)
     visited = [start_position.get_position()]
@@ -52,6 +51,7 @@ def find_start():
         raise Exception
     except Exception:
         print(f"\nError: Did not find start")
+        utils.write_output_file(None)
         sys.exit(1)
 
 
@@ -77,7 +77,8 @@ def is_valid_move(cell: Cell, visited: list, max_steps: int) -> bool:
         return False
     except ValueError as e:
         print(f"\nError: Unexpected character '{e}' at "
-              f"line {cell.row + 1} column {cell.col + 1}")
+             f"line {cell.row + 1} column {cell.col + 1}")
+        utils.write_output_file(None)
         sys.exit(1)
 
 
@@ -103,7 +104,8 @@ def main():
         print(f'Trying to solve maze with maximum steps of {max_steps} ...',
               end=' ')
         try:
-            exit_cell = solve_maze(max_steps)
+            start_position: Cell = find_start()
+            exit_cell = solve_maze(start_position, max_steps)
             print(f'Exit found with {exit_cell.steps_from_start} steps.')
             mark_path(exit_cell)
             utils.write_output_file(maze)

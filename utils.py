@@ -14,6 +14,7 @@ def read_maze_from_input():
     input_file = args.input
     if not os.path.isfile(input_file):
         print(f"Error: The file '{input_file}' does not exist.", file=sys.stderr)
+        write_output_file(None)
         sys.exit(1)
 
     print(f"Processing file: {input_file}")
@@ -29,14 +30,11 @@ def print_maze(maze):
         print("".join(row))
 
 
-def write_output_file(maze):
-    args: list = get_arguments()
-    input_file = args.input
+def write_output_file(maze: list):
     with open("output.txt", "w") as outfile:
         if maze:
             for row in maze:
                 row_joined = "".join(row)
                 outfile.write(f"{row_joined}\n")
         else:
-            outfile.write(f"Solution not found to {input_file}")
-    return None
+            outfile.write("")
