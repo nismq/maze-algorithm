@@ -11,8 +11,6 @@ The maze is provided as a plain text file (.txt), where:
 - `^`: The starting point of the maze.
 - `E`: The exit or goal of the maze.
 
-*Note: Other characters are ignored*
-
 Example text file:
 ```
 ##########
